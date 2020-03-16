@@ -1,4 +1,4 @@
-## Ajouter la référence au repo distant
+## Ajouter la référence au dépôt distant
 > git remote add origin https://gitlab.com/martinboue/enssat-jee-gestion-de-cong-s
 
 ## Récupérer les modifications distantes (à faire une fois à l'initialisation) (attention ça écrase tout)
@@ -19,10 +19,10 @@
 #### Ne mettre que les fichiers intéressants (éviter les git add . ou -a)
 > git add nom_fichier
 	
-### 2- Commit ses modifications (Avec un bon message plz)
+### 2- Commit ses modifications (avec un bon message)
 > git commit -m "Add | Remove | Fix | Update - message" 
 
-## Pousser sur la branche distante qui porte le même nom que c'elle sur laquelle on est en locale 
+## Pousser sur la branche distante qui porte le même nom que la la locale 
 > git push
 
 ## Pousser sur une autre branche que la locale
@@ -39,5 +39,5 @@
 
 ## Conseils 
 ### Eviter de travailler sur master directement
-### Re-sync sa master régulièrement avec son dépôts distants
+### Re-sync sa master régulièrement avec son dépôt distant
 ### Rebase sa branche de feature sur master quand on commence un nouveau "groupe" de features
