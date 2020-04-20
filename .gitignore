@@ -1,3 +1,4 @@
 .o
 startWSL.ps1
 .vscode
+./libs/*.o
