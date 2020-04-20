@@ -12,6 +12,8 @@
 #include <utils.h>
 #include "Scene.h"
 
+#include "Communication.h"
+
 
 /**
  * Scène à dessiner
@@ -105,6 +107,9 @@ void error_callback(int error, const char* description)
 /** point d'entrée du programme **/
 int main(int argc,char **argv)
 {
+    Communication::Client client;
+    client.start("127.0.0.1", 3333);
+
     // initialisation de GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -171,5 +176,8 @@ int main(int argc,char **argv)
         glfwPollEvents();
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window));
 
+
+    // Shutdown client
+    client.stop();
     return EXIT_SUCCESS;
 }
