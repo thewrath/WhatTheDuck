@@ -103,12 +103,29 @@ void error_callback(int error, const char* description)
     std::cerr << "GLFW error : " << description << std::endl;
 }
 
+/**
+ * @brief Verifie la queue de communication avec le thread client pour la création de canards
+ * 
+ */
+void handleDuckCreationRequest(Scene* scene, std::condition_variable* duckCreationRequestsCondition, std::mutex* duckCreationRequestsMutex, std::queue<Message::Duck>* duckCreationRequests)
+{
+    {
+        std::unique_lock<std::mutex> lock(*duckCreationRequestsMutex);
+        // duckCreationRequestsCondition->wait(lock, [duckCreationRequests]{return !duckCreationRequests->empty(); });
+        if(!duckCreationRequests->empty()) {
+            Message::Duck request = duckCreationRequests->front();
+            duckCreationRequests->pop();
+            scene->createDuck(5.0, 0, 0, 0, 90, 0);
+            std::cout << "Want to create a duck" << std::endl;
+        }
+    }
+}
+
 
 /** point d'entrée du programme **/
 int main(int argc,char **argv)
 {
-    Communication::Client client;
-    client.start("127.0.0.1", 3333);
+    Communication::Client client("127.0.0.1", 3333);
 
     // initialisation de GLFW
     if (!glfwInit()) {
@@ -152,7 +169,11 @@ int main(int argc,char **argv)
     alListener3f(AL_VELOCITY, 0, 0, 0);
 
     // création de la scène => création des objets...
+
+    // on attend que le client reseau soit connecté et a intiliasé ses canards
+    // on initialise la scene avec les canards envoyé par le serveur
     scene = new Scene();
+
     //debugGLFatal("new Scene()");
 
     // enregistrement des fonctions callbacks
@@ -170,6 +191,8 @@ int main(int argc,char **argv)
     // boucle principale
     onSurfaceChanged(window, 640,480);
     do {
+        // Gérer les demandes de création du thread reseau
+        handleDuckCreationRequest(scene, &client.duckCreationRequestsCondition, &client.duckCreationRequestsMutex, &client.duckCreationRequests);
         // dessiner
         onDrawRequest(window);
         // attendre les événements

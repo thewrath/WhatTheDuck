@@ -60,14 +60,24 @@ Duck::Duck(): Mesh("Duck")
     alSource3f(source, AL_POSITION, 0, 0, 0); // on positionne la source à (0,0,0) par défaut
     alSource3f(source, AL_VELOCITY, 0, 0, 0);
     alSourcei(source, AL_LOOPING, AL_TRUE);
-    // dans un cone d'angle [-inner/2,inner/2] il n'y a pas d'attenuation
-    alSourcef(source, AL_CONE_INNER_ANGLE, 10);
-    // dans un cone d'angle [-outer/2,outer/2] il y a une attenuation linéaire entre 0 et le gain
-    alSourcef(source, AL_CONE_OUTER_GAIN, 0);
-    alSourcef(source, AL_CONE_OUTER_ANGLE, 30);
+    // // dans un cone d'angle [-inner/2,inner/2] il n'y a pas d'attenuation
+    // alSourcef(source, AL_CONE_INNER_ANGLE, 30);
+    // // dans un cone d'angle [-outer/2,outer/2] il y a une attenuation linéaire entre 0 et le gain
+    // alSourcef(source, AL_CONE_OUTER_GAIN, 0);
+    // alSourcef(source, AL_CONE_OUTER_ANGLE, 180);
     // à l'extérieur de [-outer/2,outer/2] il y a une attenuation totale
 
-    alDistanceModel(AL_NONE);
+    // On fait une attenuation exponentiel pour entendre le canard même si on n'est pas juste à côtés
+
+    alSourcef(source, AL_ROLLOFF_FACTOR, 1);
+    // a partir de qu'elle distance on commencer à attenuer
+    alSourcef(source, AL_REFERENCE_DISTANCE, 2);
+
+    //jusqu'à qu'elle distance on attenue
+    alSourcef(source, AL_MAX_DISTANCE, 80);
+
+    //qu'elle fonction appliquer pour l'atténuation
+    alDistanceModel(AL_EXPONENT_DISTANCE);
 }
 
 

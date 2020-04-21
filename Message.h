@@ -55,6 +55,7 @@ namespace Message
             float ax;
             float ay;
             float az;
+            
         public:
             Duck();
             std::string SerializeToString() { return Base::SerializeToString(); };

@@ -4,6 +4,7 @@
 // Définition de la classe Scene
 
 #include <gl-matrix.h>
+#include <vector>
 
 #include "Light.h"
 
@@ -16,8 +17,7 @@ class Scene
 private:
 
     // objets de la scène
-    Duck* m_Duck_ch1;
-    Duck* m_Duck_ch2;
+    std::vector<Duck*> ducks;
     Ground* m_Ground;
 
     // lampes
@@ -88,6 +88,30 @@ public:
 
     /** Dessine l'image courante */
     void onDrawFrame();
+
+    /**
+     * @brief Initialise un canard
+     * 
+     */
+    void createDuck(float, float, float, float, float, float);
+
+    /**
+     * @brief Met à jour les canards 
+     * 
+     */
+    void updateDucks(mat4&, vec4&);
+
+    /**
+     * @brief Dessine les canards à l'écran
+     * 
+     */
+    void drawDucks();
+
+    /**
+     * @brief Libère l'espace mémoires alloué au canards
+     * 
+     */
+    void destroyDucks();
 };
 
 #endif

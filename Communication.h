@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <string.h>
+#include <mutex>
 #include <thread>
 #include <vector>
+#include <queue>
+#include <condition_variable>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -13,6 +16,15 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <arpa/inet.h>
+
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alut.h>
+
+#include <utils.h>
+#include <gl-matrix.h>
+
+#include "Duck.h"
 
 #include "Message.h"
 
@@ -31,16 +43,21 @@ namespace Communication
     void read(int, char *);
     void write(int, std::string);
 
-    void communicate(std::string, int);
-
     class Client
     {
-        std::thread thread;
+        private:
+            std::thread thread;
 
         public:
-            void start(std::string, int);
+            std::mutex duckCreationRequestsMutex;
+            std::condition_variable duckCreationRequestsCondition;
+            std::queue<Message::Duck> duckCreationRequests;
+
+            Client(std::string, int);
             void stop();
     };
+
+    void communicate(std::string, int, std::condition_variable*, std::mutex*, std::queue<Message::Duck>*);
 };
 
 #endif

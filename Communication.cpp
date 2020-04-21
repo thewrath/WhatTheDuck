@@ -6,8 +6,6 @@ namespace Communication
     {
         ssize_t bytes_read = 0;
         memset(buffer, 0, BUFSIZE);
-        //testing stuff, BUFSIZE = 4096
-        printf("Received Socket # %d\nBuffer Size = %d\n", description, BUFSIZE);
 
         // buffer[bytes_read] = 0; // Null-terminate the buffer
         bytes_read = recv(description, buffer, BUFSIZE, 0);
@@ -15,13 +13,6 @@ namespace Communication
         if (bytes_read == -1) {
             throw SocketException("Socket recv failed");
         }
-
-        //Turn into a sting
-        // std::string dataStr(buffer);
-
-        std::cout << buffer << std::endl;
-
-        // std::cout << "Fin de reception" << std::endl;
     }
 
     void write(int description, std::string data)
@@ -33,9 +24,9 @@ namespace Communication
         }
     }
 
-    void Client::start(std::string address, int port)
+    Client::Client(std::string address, int port)
     {
-        this->thread = std::thread(communicate, address, port);
+        this->thread = std::thread(communicate, address, port, &this->duckCreationRequestsCondition, &this->duckCreationRequestsMutex, &this->duckCreationRequests); 
     }
 
     void Client::stop()
@@ -43,7 +34,7 @@ namespace Communication
         this->thread.join();
     }
 
-    void communicate(std::string server_address, int port)
+    void communicate(std::string server_address, int port, std::condition_variable* duckCreationRequestsCondition, std::mutex* duckCreationRequestsMutex, std::queue<Message::Duck>* duckCreationRequests)
     {
         char buffer[BUFSIZE];
 
@@ -68,20 +59,45 @@ namespace Communication
         }
 
         Message::Connection connection;
+
+        // Send connection message to server
         write(description, connection.SerializeToString());
         std::cout << connection.SerializeToString() << std::endl;
-        while(true){
 
+        // Process message
+        while(true){
             try {
-                read(description, buffer); 
-                Message::Duck duck;
-                duck.ParseFromString(std::string(buffer));
-                
-                std::cout << duck.DebugString();   
+
+                // Read socket 
+                read(description, buffer);
+
+                // On bloque la queue pour la communication inter thread
+                std::unique_lock<std::mutex> lock(*duckCreationRequestsMutex);
+                // Check message type
+                switch (Message::Base::GetType(std::string(buffer)))
+                {
+                    // duck message
+                    case Message::MessageType::duck :
+                        {
+                            Message::Duck duck;
+                            // std::cout << "Duck received ! " << std::endl;
+                            duck.ParseFromString(std::string(buffer));
+                            duckCreationRequests->push(duck);
+                            std::cout << duck.DebugString() << std::endl;   
+                        }
+                        break;
+
+                    default:
+                        // Unknow message type
+                        std::cout << "package type " << std::to_string(Message::Base::GetType(std::string(buffer))) << std::endl;
+                        break;
+                }
+                // duckCreationRequestsCondition->notify_one();
                 
             } catch(SocketException& e) {
                 std::cout << e.what() << std::endl;
             }
+            
         }
 
         close(description);
