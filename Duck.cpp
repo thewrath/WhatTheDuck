@@ -21,8 +21,9 @@ using namespace mesh;
 
 
 /** constructeur */
-Duck::Duck(): Mesh("Duck")
+Duck::Duck(int id): Mesh("Duck")
 {
+    this->id = id;
     // matériaux
     m_Material = new MaterialTexture("data/10602_Rubber_Duck_v1_diffuse.jpg");
     setMaterials(m_Material);

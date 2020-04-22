@@ -198,10 +198,10 @@ void Scene::onDrawFrame()
 
 }
 
-void Scene::createDuck(float x, float y, float z, float ax, float ay, float az)
+void Scene::createDuck(int id, float x, float y, float z, float ax, float ay, float az)
 {
     std::cout << "Create duck" << std::endl;
-    Duck* duck = new Duck();
+    Duck* duck = new Duck(id);
     duck->setPosition(vec3::fromValues(x, y, z));
     duck->setOrientation(vec3::fromValues(Utils::radians(ax), Utils::radians(ay), Utils::radians(az)));
     duck->setDraw(true);

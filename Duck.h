@@ -30,8 +30,11 @@ private:
 
 public:
 
+    // id pour la partie multijoeur
+    int id;
+
     /** constructeur, crée le maillage */
-    Duck();
+    Duck(int id);
 
     /** destructeur, libère le maillage et l'audio */
     ~Duck();

@@ -30,7 +30,7 @@
 
 namespace Communication
 {
-    const int BUFSIZE = 15;
+    const int BUFSIZE = 4096;
 
     struct SocketException : public std::exception
     {
@@ -49,9 +49,9 @@ namespace Communication
             std::thread thread;
 
         public:
-            std::mutex duckCreationRequestsMutex;
-            std::condition_variable duckCreationRequestsCondition;
-            std::queue<Message::Duck> duckCreationRequests;
+            std::mutex canalMutex;
+            std::condition_variable canalCondition;
+            std::queue<Message::Duck> canal;
 
             Client(std::string, int);
             void stop();

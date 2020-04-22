@@ -93,7 +93,7 @@ public:
      * @brief Initialise un canard
      * 
      */
-    void createDuck(float, float, float, float, float, float);
+    void createDuck(int, float, float, float, float, float, float);
 
     /**
      * @brief Met à jour les canards 

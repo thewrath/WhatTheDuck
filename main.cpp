@@ -107,15 +107,15 @@ void error_callback(int error, const char* description)
  * @brief Verifie la queue de communication avec le thread client pour la création de canards
  * 
  */
-void handleDuckCreationRequest(Scene* scene, std::condition_variable* duckCreationRequestsCondition, std::mutex* duckCreationRequestsMutex, std::queue<Message::Duck>* duckCreationRequests)
+void handleDuckCreationRequest(Scene* scene, std::condition_variable* canalCondition, std::mutex* canalMutex, std::queue<Message::Duck>* canal)
 {
     {
-        std::unique_lock<std::mutex> lock(*duckCreationRequestsMutex);
-        // duckCreationRequestsCondition->wait(lock, [duckCreationRequests]{return !duckCreationRequests->empty(); });
-        if(!duckCreationRequests->empty()) {
-            Message::Duck request = duckCreationRequests->front();
-            duckCreationRequests->pop();
-            scene->createDuck(5.0, 0, 0, 0, 90, 0);
+        std::unique_lock<std::mutex> lock(*canalMutex);
+        // canalCondition->wait(lock, [canal]{return !canal->empty(); });
+        if(!canal->empty()) {
+            Message::Duck request = canal->front();
+            canal->pop();
+            scene->createDuck(request.id, request.x, request.y, request.z, 0, 90, 0);
             std::cout << "Want to create a duck" << std::endl;
         }
     }
@@ -192,7 +192,7 @@ int main(int argc,char **argv)
     onSurfaceChanged(window, 640,480);
     do {
         // Gérer les demandes de création du thread reseau
-        handleDuckCreationRequest(scene, &client.duckCreationRequestsCondition, &client.duckCreationRequestsMutex, &client.duckCreationRequests);
+        handleDuckCreationRequest(scene, &client.canalCondition, &client.canalMutex, &client.canal);
         // dessiner
         onDrawRequest(window);
         // attendre les événements
