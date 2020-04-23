@@ -11,10 +11,14 @@
 #include "Duck.h"
 #include "Ground.h"
 
+#include "Communication.h"
 
 class Scene
 {
 private:
+
+    //Client réseau 
+    Communication::Client client;
 
     // objets de la scène
     std::vector<Duck*> ducks;
@@ -112,6 +116,18 @@ public:
      * 
      */
     void destroyDucks();
+
+    /**
+     * @brief Verifie la queue de communication avec le thread client pour la création de canards
+     * 
+     */
+    void handleDuckCreationRequest();
+
+    /**
+     * @brief Demande au thread reseau l'envoi d'un message de canard trouvé au serveur
+     * 
+     */
+    void sendDuckFoundMessage(int);
 };
 
 #endif

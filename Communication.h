@@ -46,18 +46,24 @@ namespace Communication
     class Client
     {
         private:
-            std::thread thread;
+            int description;
+
+            std::thread transmissionThread;
+            std::thread receptionThread;
 
         public:
-            std::mutex canalMutex;
-            std::condition_variable canalCondition;
-            std::queue<Message::Duck> canal;
+            std::mutex receptionChannelMutex;
+            std::queue<Message::Duck> receptionChannel;
 
-            Client(std::string, int);
+            std::mutex transmissionChannelMutex;
+            std::queue<Message::Found> transmissionChannel;
+
+            Client(const std::string&, int);
             void stop();
     };
 
-    void communicate(std::string, int, std::condition_variable*, std::mutex*, std::queue<Message::Duck>*);
+    void receiveData(int, std::mutex*, std::queue<Message::Duck>*);
+    void sendData(int, std::mutex*, std::queue<Message::Found>*);
 };
 
 #endif

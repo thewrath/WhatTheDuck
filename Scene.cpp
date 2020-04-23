@@ -14,9 +14,8 @@
 
 
 /** constructeur */
-Scene::Scene()
+Scene::Scene() : client("127.0.0.1", 3333)
 {
-
     m_Ground = new Ground();
 
     // caractéristiques de la lampe
@@ -155,6 +154,9 @@ void Scene::onKeyDown(unsigned char code)
  */
 void Scene::onDrawFrame()
 {
+    // Gérer les demandes de création de canards provenant du reseau
+    this->handleDuckCreationRequest();
+
     /** préparation des matrices **/
 
     // positionner la caméra
@@ -219,6 +221,7 @@ void Scene::updateDucks(mat4 &tmp_v, vec4 &pos)
             std::cout << "Canard " + std::to_string(i) + " trouvé !" << std::endl;
             ducks[i]->setDraw(true);
             // ducks[i]->setSound(false);
+            this->sendDuckFoundMessage(i);
         }
     }
     
@@ -246,10 +249,39 @@ void Scene::destroyDucks()
     
 }
 
+void Scene::handleDuckCreationRequest()
+{
+    {
+        std::unique_lock<std::mutex> lock(this->client.receptionChannelMutex, std::defer_lock);
+        if(lock.try_lock() && !this->client.receptionChannel.empty()) {
+            Message::Duck request = this->client.receptionChannel.front();
+            this->client.receptionChannel.pop();
+            this->createDuck(request.id, request.x, request.y, request.z, 0, 90, 0);
+            std::cout << "Want to create a duck" << std::endl;
+            lock.unlock();
+        }
+    }
+}
+
+void Scene::sendDuckFoundMessage(int duckId)
+{
+    {
+        std::unique_lock<std::mutex> lock(this->client.transmissionChannelMutex, std::defer_lock);
+        if(lock.try_lock()) {
+            Message::Found message(duckId);
+            this->client.transmissionChannel.push(message);
+            std::cout << "Found duck message sent to network thread" << std::endl;
+            lock.unlock();
+        }
+    }
+}
+
 
 /** supprime tous les objets de cette scène */
 Scene::~Scene()
 {
+    // Shutdown client
+    this->client.stop();
     this->destroyDucks();
     delete m_Ground;
 }

@@ -12,8 +12,6 @@
 #include <utils.h>
 #include "Scene.h"
 
-#include "Communication.h"
-
 
 /**
  * Scène à dessiner
@@ -103,30 +101,9 @@ void error_callback(int error, const char* description)
     std::cerr << "GLFW error : " << description << std::endl;
 }
 
-/**
- * @brief Verifie la queue de communication avec le thread client pour la création de canards
- * 
- */
-void handleDuckCreationRequest(Scene* scene, std::condition_variable* canalCondition, std::mutex* canalMutex, std::queue<Message::Duck>* canal)
-{
-    {
-        std::unique_lock<std::mutex> lock(*canalMutex);
-        // canalCondition->wait(lock, [canal]{return !canal->empty(); });
-        if(!canal->empty()) {
-            Message::Duck request = canal->front();
-            canal->pop();
-            scene->createDuck(request.id, request.x, request.y, request.z, 0, 90, 0);
-            std::cout << "Want to create a duck" << std::endl;
-        }
-    }
-}
-
-
 /** point d'entrée du programme **/
 int main(int argc,char **argv)
 {
-    Communication::Client client("127.0.0.1", 3333);
-
     // initialisation de GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -191,16 +168,11 @@ int main(int argc,char **argv)
     // boucle principale
     onSurfaceChanged(window, 640,480);
     do {
-        // Gérer les demandes de création du thread reseau
-        handleDuckCreationRequest(scene, &client.canalCondition, &client.canalMutex, &client.canal);
         // dessiner
         onDrawRequest(window);
         // attendre les événements
         glfwPollEvents();
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window));
 
-
-    // Shutdown client
-    client.stop();
     return EXIT_SUCCESS;
 }
