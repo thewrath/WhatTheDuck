@@ -56,9 +56,13 @@ namespace Message
         this->type = MessageType::deconnection;
     }
 
-    Found::Found(int id)
+    Found::Found()
     {
         this->type = MessageType::found;
+    }
+
+    Found::Found(int id) : Found()
+    {
         this->id = id;
     }
 
@@ -139,5 +143,32 @@ namespace Message
     Win::Win()
     {
         this->type = MessageType::win;
+    }
+
+    Win::Win(int id) : Win() 
+    {
+        this->id = id;
+    }
+
+    std::string Win::SerializeToString()
+    {
+        return std::to_string(this->type)
+        +":"+std::to_string(this->id)
+        +";";
+    }
+
+    void Win::ParseFromString(std::string data)
+    {
+        // Call this method only if the message type is validate before
+        std::vector<std::string> arguments = extractArguments(data);
+        if(arguments.size() < 2) {
+            throw MessageException("Not enought argument to parse duck message");
+        }
+
+        try {
+            this->id = std::stoi(arguments[1]);
+        } catch (std::exception const & e) {
+            throw MessageException("One argument type doesn't match");
+        }
     }
 }

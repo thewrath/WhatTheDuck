@@ -40,7 +40,7 @@ namespace Communication
         serv_addr.sin_family = AF_INET; // on precise qu'il s'agit d'un socket reseau et non inter-processus (AF_UNIX)
         if(inet_pton(AF_INET, server_address.c_str(), &serv_addr.sin_addr)<=0)  
         { 
-            throw SocketException("Invalide address");
+            throw SocketException("Invalid address");
         }
 
         if (connect(this->description, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
@@ -76,28 +76,32 @@ namespace Communication
                     // Read socket 
                     read(description, buffer);
                     // On bloque la queue pour la communication inter thread
-                    std::unique_lock<std::mutex> lock(*receptionChannelMutex, std::defer_lock);
-                    if(lock.try_lock()) {
-                        // Check message type
-                        switch (Message::Base::GetType(std::string(buffer)))
-                        {
-                            // duck message
-                            case Message::MessageType::duck :
-                                {
-                                    Message::Duck duck;
-                                    // std::cout << "Duck received ! " << std::endl;
-                                    duck.ParseFromString(std::string(buffer));
-                                    receptionChannel->push(duck);
-                                    std::cout << duck.DebugString() << std::endl;   
-                                }
-                                break;
+                    std::unique_lock<std::mutex> lock(*receptionChannelMutex);
+                    // Check message type
+                    switch (Message::Base::GetType(std::string(buffer)))
+                    {
+                        // duck message
+                        case Message::MessageType::duck :
+                            {
+                                Message::Duck duck;
+                                // std::cout << "Duck received ! " << std::endl;
+                                duck.ParseFromString(std::string(buffer));
+                                receptionChannel->push(duck);
+                                std::cout << duck.DebugString() << std::endl;   
+                            }
+                            break;
+                        case Message::MessageType::win : 
+                            {
+                                Message::Win win;
+                                win.ParseFromString(std::string(buffer));
+                                std::cout << "Player " << std::to_string(win.id) << std::endl;
+                            }
+                            break;
 
-                            default:
-                                // Unknow message type
-                                std::cout << "package type " << std::to_string(Message::Base::GetType(std::string(buffer))) << std::endl;
-                                break;
-                        }
-                        lock.unlock();
+                        default:
+                            // Unknow message type
+                            std::cout << "package type " << std::to_string(Message::Base::GetType(std::string(buffer))) << std::endl;
+                            break;
                     }
                     
                 }
