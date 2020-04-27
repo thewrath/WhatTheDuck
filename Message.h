@@ -36,7 +36,8 @@ namespace Message
         deconnection = 2,
         found = 3,
         duck = 4,
-        win = 5
+        win = 5,
+        position = 6
     };
 
     class Base
@@ -121,6 +122,21 @@ namespace Message
             std::string SerializeToString();
             std::string DebugString() { return Base::DebugString(); };
             void ParseFromString(std::string data);
+    };
+
+    class Position : public Base
+    {
+        public:
+            float x = 0;
+            float y = 0;
+            float z = 0;
+
+            Position();
+            Position(float, float, float);
+            std::string SerializeToString();
+            std::string DebugString() { return this->SerializeToString(); };
+            void ParseFromString(std::string data);
+
     };
 };
 #endif

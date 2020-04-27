@@ -78,7 +78,7 @@ namespace Message
         // Call this method only if the message type is validate before
         std::vector<std::string> arguments = extractArguments(data);
         if(arguments.size() < 2) {
-            throw MessageException("Not enought argument to parse duck message");
+            throw MessageException("Not enough argument to parse duck message");
         }
 
         try {
@@ -113,7 +113,7 @@ namespace Message
         // Call this method only if the message type is validate before
         std::vector<std::string> arguments = extractArguments(data);
         if(arguments.size() < 9) {
-            throw MessageException("Not enought argument to parse duck message");
+            throw MessageException("Not enough argument to parse duck message");
         }
 
         try {
@@ -162,7 +162,7 @@ namespace Message
         // Call this method only if the message type is validate before
         std::vector<std::string> arguments = extractArguments(data);
         if(arguments.size() < 2) {
-            throw MessageException("Not enought argument to parse duck message");
+            throw MessageException("Not enough argument to parse duck message");
         }
 
         try {
@@ -171,4 +171,43 @@ namespace Message
             throw MessageException("One argument type doesn't match");
         }
     }
+
+    Position::Position()
+    {
+        this->type = MessageType::position;
+    }
+
+    Position::Position(float x, float y, float z) : Position()
+    {
+        this->x = x;
+        this->y = y;
+        this->z = z;
+    }
+
+    std::string Position::SerializeToString()
+    {
+        return std::to_string(this->type)
+        +":"+std::to_string(this->x)
+        +":"+std::to_string(this->y)
+        +":"+std::to_string(this->z);
+    }
+
+    void Position::ParseFromString(std::string data)
+    {
+        // Call this method only if the message type is validate before
+        std::vector<std::string> arguments = extractArguments(data);
+        if(arguments.size() < 4) {
+            throw MessageException("Not enought argument to parse duck message");
+        }
+
+        try {
+            this->x = std::stof(arguments[1]);
+            this->y = std::stof(arguments[2]);
+            this->z = std::stof(arguments[3]);
+
+        } catch (std::exception const & e) {
+            throw MessageException("One argument type doesn't match");
+        }
+    }
+
 }

@@ -128,6 +128,12 @@ public:
      *
      */
     void sendDuckFoundMessage(int);
+
+    /**
+     * @brief Demande au thread reseau l'envoi d'un message de la position du joueur au serveur
+     *
+     */
+    void sendPositionMessage(float, float, float);
 };
 
 #endif

@@ -146,6 +146,14 @@ void Scene::onKeyDown(unsigned char code)
 
     // appliquer le décalage au centre de la rotation
     vec3::add(m_Center, m_Center, offset);
+
+    //std::cout << offset[0] << std::endl;
+
+    std::cout <<"x"<< m_Center[0] << std::endl;
+    std::cout <<"y"<< m_Center[1] << std::endl;
+    std::cout <<"z"<< m_Center[2] << std::endl;
+
+
 }
 
 
@@ -177,6 +185,9 @@ void Scene::onDrawFrame()
     vec4 pos;
 
     this->updateDucks(tmp_v, pos);
+
+    //envoie de la position du joueur
+    this->sendPositionMessage(0,0,0);
 
     /** gestion des lampes **/
 
@@ -265,6 +276,18 @@ void Scene::sendDuckFoundMessage(int duckId)
         std::unique_lock<std::mutex> lock(this->client.transmissionChannelMutex, std::defer_lock);
         if(lock.try_lock()) {
             auto message = std::make_shared<Message::Found>(duckId);
+            this->client.transmissionChannel.push(std::dynamic_pointer_cast<Message::Base>(message));
+        }
+    }
+}
+
+
+void Scene::sendPositionMessage(float x, float y, float z)
+{
+    {
+        std::unique_lock<std::mutex> lock(this->client.transmissionChannelMutex, std::defer_lock);
+        if(lock.try_lock()) {
+            auto message = std::make_shared<Message::Position>(x,y,z);
             this->client.transmissionChannel.push(std::dynamic_pointer_cast<Message::Base>(message));
         }
     }

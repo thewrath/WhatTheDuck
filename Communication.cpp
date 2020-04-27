@@ -135,7 +135,16 @@ namespace Communication
                                   std::cout << "me: envoi d'un message de canard trouvé au serveur " <<found->DebugString() << std::endl;
                                 }
                                 break;
-
+                            
+                            //position message
+                            case Message::MessageType::position :
+                                {
+                                  auto position = std::dynamic_pointer_cast<Message::Position>(message);
+                                  write(description, position->SerializeToString());
+                                  std::cout << "me: envoie de ma position " <<position->DebugString() << std::endl;
+                                }
+                                break;
+                            
                             default:
                                 // Type de message inconnu
                                 std::cout << "me: tentative d'envoi d'un message de type : " << std::to_string(message->type) << std::endl;
