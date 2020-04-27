@@ -202,7 +202,6 @@ void Scene::onDrawFrame()
 
 void Scene::createDuck(int id, float x, float y, float z, float ax, float ay, float az)
 {
-    std::cout << "Create duck" << std::endl;
     Duck* duck = new Duck(id);
     duck->setPosition(vec3::fromValues(x, y, z));
     duck->setOrientation(vec3::fromValues(Utils::radians(ax), Utils::radians(ay), Utils::radians(az)));
@@ -214,17 +213,16 @@ void Scene::createDuck(int id, float x, float y, float z, float ax, float ay, fl
 void Scene::updateDucks(mat4 &tmp_v, vec4 &pos)
 {
     for (int i = 0; i < this->ducks.size(); i++)
-    {   
+    {
         mat4::translate(tmp_v, this->m_MatV, ducks[i]->getPosition());
         vec4::transformMat4(pos, vec4::fromValues(0,0,0,1), tmp_v);
         if (vec4::length(pos) < 5) {
-            std::cout << "Canard " + std::to_string(i) + " trouvé !" << std::endl;
             ducks[i]->setDraw(true);
-            // ducks[i]->setSound(false);
+            ducks[i]->setSound(false);
             this->sendDuckFoundMessage(i);
         }
     }
-    
+
 }
 
 void Scene::drawDucks()
@@ -235,7 +233,7 @@ void Scene::drawDucks()
         duck->onRender(this->m_MatP, this->m_MatV);
         duck->onRender(this->m_MatP, this->m_MatV);
     }
-    
+
 }
 
 void Scene::destroyDucks()
@@ -246,7 +244,7 @@ void Scene::destroyDucks()
     }
 
     this->ducks.empty();
-    
+
 }
 
 void Scene::handleDuckCreationRequest()
@@ -254,11 +252,9 @@ void Scene::handleDuckCreationRequest()
     {
         std::unique_lock<std::mutex> lock(this->client.receptionChannelMutex, std::defer_lock);
         if(lock.try_lock() && !this->client.receptionChannel.empty()) {
-            Message::Duck request = this->client.receptionChannel.front();
+            std::shared_ptr<Message::Duck> request = std::dynamic_pointer_cast<Message::Duck>(this->client.receptionChannel.front());
             this->client.receptionChannel.pop();
-            this->createDuck(request.id, request.x, request.y, request.z, 0, 90, 0);
-            std::cout << "Want to create a duck" << std::endl;
-            lock.unlock();
+            this->createDuck(request->id, request->x, request->y, request->z, 0, 90, 0);
         }
     }
 }
@@ -268,10 +264,8 @@ void Scene::sendDuckFoundMessage(int duckId)
     {
         std::unique_lock<std::mutex> lock(this->client.transmissionChannelMutex, std::defer_lock);
         if(lock.try_lock()) {
-            Message::Found message(duckId);
-            this->client.transmissionChannel.push(message);
-            std::cout << "Found duck message sent to network thread" << std::endl;
-            lock.unlock();
+            auto message = std::make_shared<Message::Found>(duckId);
+            this->client.transmissionChannel.push(std::dynamic_pointer_cast<Message::Base>(message));
         }
     }
 }

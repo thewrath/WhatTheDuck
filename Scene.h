@@ -17,7 +17,7 @@ class Scene
 {
 private:
 
-    //Client réseau 
+    //Client réseau
     Communication::Client client;
 
     // objets de la scène
@@ -95,37 +95,37 @@ public:
 
     /**
      * @brief Initialise un canard
-     * 
+     *
      */
     void createDuck(int, float, float, float, float, float, float);
 
     /**
-     * @brief Met à jour les canards 
-     * 
+     * @brief Met à jour les canards
+     *
      */
     void updateDucks(mat4&, vec4&);
 
     /**
      * @brief Dessine les canards à l'écran
-     * 
+     *
      */
     void drawDucks();
 
     /**
      * @brief Libère l'espace mémoires alloué au canards
-     * 
+     *
      */
     void destroyDucks();
 
     /**
      * @brief Verifie la queue de communication avec le thread client pour la création de canards
-     * 
+     *
      */
     void handleDuckCreationRequest();
 
     /**
      * @brief Demande au thread reseau l'envoi d'un message de canard trouvé au serveur
-     * 
+     *
      */
     void sendDuckFoundMessage(int);
 };

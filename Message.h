@@ -17,7 +17,7 @@
 #include <string.h>
 #include <vector>
 
-namespace Message 
+namespace Message
 {
 
     struct MessageException : public std::exception
@@ -32,28 +32,29 @@ namespace Message
 
     enum MessageType {
         base = 0,
-        connection = 1, 
+        connection = 1,
         deconnection = 2,
         found = 3,
         duck = 4,
         win = 5
     };
 
-    class Base 
+    class Base
     {
-        protected:
-            MessageType type = MessageType::base;
-            
 
-        public: 
+        public:
+            MessageType type = MessageType::base;
+
             std::string SerializeToString();
             std::string DebugString();
             void ParseFromString(std::string);
 
             static MessageType GetType(std::string);
+
+            virtual ~Base() { };
     };
 
-    class Connection : Base
+    class Connection : public Base
     {
         public:
             Connection();
@@ -62,7 +63,7 @@ namespace Message
             void ParseFromString(std::string data) { return Base::ParseFromString(data); };
     };
 
-    class Deconnection : Base
+    class Deconnection : public Base
     {
         public:
             Deconnection();
@@ -71,7 +72,7 @@ namespace Message
             void ParseFromString(std::string data) { return Base::ParseFromString(data); };
     };
 
-    class Found : Base
+    class Found : public Base
     {
         public:
             int id = 0;
@@ -83,7 +84,7 @@ namespace Message
             void ParseFromString(std::string data);
     };
 
-    class Duck : Base
+    class Duck : public Base
     {
         public:
             std::string sound = "default.wav";
@@ -110,7 +111,7 @@ namespace Message
             void set_az(float);
     };
 
-    class Win : Base
+    class Win : public Base
     {
         public:
             int id = 0;

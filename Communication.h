@@ -43,6 +43,8 @@ namespace Communication
     void read(int, char *);
     void write(int, std::string);
 
+    typedef std::shared_ptr<Message::Base> PMessageBase;
+
     class Client
     {
         private:
@@ -53,17 +55,17 @@ namespace Communication
 
         public:
             std::mutex receptionChannelMutex;
-            std::queue<Message::Duck> receptionChannel;
+            std::queue<PMessageBase> receptionChannel;
 
             std::mutex transmissionChannelMutex;
-            std::queue<Message::Found> transmissionChannel;
+            std::queue<PMessageBase> transmissionChannel;
 
             Client(const std::string&, int);
             void stop();
     };
 
-    void receiveData(int, std::mutex*, std::queue<Message::Duck>*);
-    void sendData(int, std::mutex*, std::queue<Message::Found>*);
+    void receiveData(int, std::mutex*, std::queue<PMessageBase>*);
+    void sendData(int, std::mutex*, std::queue<PMessageBase>*);
 };
 
 #endif
